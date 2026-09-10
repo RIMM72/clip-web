@@ -20,7 +20,7 @@ function formatTime(seconds: number) {
   return `${m}:${s.toString().padStart(2, '0')}`
 }
 
-export default async function StreamPage({
+export default async function EditorStreamPage({
   params,
 }: {
   params: Promise<{ videoId: string }>
@@ -67,7 +67,9 @@ export default async function StreamPage({
           ← 配信一覧へ
         </Link>
 
-        <h1 className="mb-2 text-3xl font-bold">切り抜き候補</h1>
+        <h1 className="mb-2 text-3xl font-bold">
+          切り抜き候補 / Editor
+        </h1>
 
         <div className="mb-8">
           <p className="text-lg font-semibold">{stream.title}</p>
@@ -151,6 +153,71 @@ export default async function StreamPage({
                       {highlight.appeal}
                     </p>
                   </section>
+
+                  <section>
+                    <h3 className="font-bold">寸評</h3>
+                    <p className="mt-1 text-gray-700">
+                      {highlight.commentary}
+                    </p>
+                  </section>
+
+                  <section>
+                    <h3 className="font-bold">編集ポイント</h3>
+                    <p className="mt-1 text-gray-700">
+                      {highlight.editing_point}
+                    </p>
+                  </section>
+
+                  <section>
+                    <h3 className="font-bold">注意点</h3>
+                    <p className="mt-1 text-gray-700">
+                      {highlight.caution || 'なし'}
+                    </p>
+                  </section>
+
+                  <section>
+                    <h3 className="font-bold">Candidate ID</h3>
+                    <p className="mt-1 font-mono text-gray-700">
+                      {highlight.candidate_id}
+                    </p>
+                  </section>
+
+                  <section>
+                    <h3 className="font-bold">Selection Reasons</h3>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {highlight.selection_reasons?.map(
+                        (reason: string) => (
+                          <span
+                            key={reason}
+                            className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-700"
+                          >
+                            {reason}
+                          </span>
+                        )
+                      )}
+                    </div>
+                  </section>
+
+                  <section>
+                    <h3 className="font-bold">Source Evidence</h3>
+
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <Evidence
+                        label="Transcript"
+                        enabled={
+                          highlight.source_evidence?.transcript
+                        }
+                      />
+                      <Evidence
+                        label="Chat"
+                        enabled={highlight.source_evidence?.chat}
+                      />
+                      <Evidence
+                        label="Audio"
+                        enabled={highlight.source_evidence?.audio}
+                      />
+                    </div>
+                  </section>
                 </div>
               </article>
             )
@@ -175,5 +242,19 @@ function ScoreBox({
       </div>
       <div className="mt-1 text-xl font-bold">{score}</div>
     </div>
+  )
+}
+
+function Evidence({
+  label,
+  enabled,
+}: {
+  label: string
+  enabled: boolean
+}) {
+  return (
+    <span className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-700">
+      {label}: {enabled ? 'あり' : 'なし'}
+    </span>
   )
 }
