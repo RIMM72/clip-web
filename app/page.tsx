@@ -50,8 +50,6 @@ export default async function Home() {
     )
   }
 
-  const stream = streams?.[0]
-
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-10">
       <div className="mx-auto max-w-5xl">
