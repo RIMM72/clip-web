@@ -8,7 +8,10 @@ export default async function Home() {
   const { data: streams, error } = await supabase
     .from('stream')
     .select('*')
-    .order('published_at', { ascending: false })
+    .order('published_at', {
+      ascending: false,
+      nullsFirst: false,
+    })
 
   if (error) {
     return (
