@@ -91,9 +91,19 @@ export default async function Home() {
 
   return (
     <main className="mx-auto max-w-5xl p-6">
-      <h1 className="mb-6 text-3xl font-bold">
-        配信一覧
-      </h1>
+      <div className="mb-6">
+        <div className="text-3xl font-bold">
+          AIが選ぶおすすめシーン
+        </div>
+
+        <div className="mt-1 text-sm text-gray-500">
+          配信から見どころを自動でピックアップ
+        </div>
+
+        <h1 className="mt-6 text-2xl font-bold">
+          配信一覧
+        </h1>
+      </div>
 
       <div className="space-y-4">
         {streams.map((stream) => {
