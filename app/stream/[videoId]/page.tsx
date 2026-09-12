@@ -140,10 +140,10 @@ export default async function StreamPage({
               </h2>
 
               <div className="mt-4 flex items-center gap-3">
-                {stream.channel?.thumbnail_url ? (
+                {channel?.thumbnail_url ? (
                   <img
-                    src={stream.channel.thumbnail_url}
-                    alt={stream.channel.name ?? ''}
+                    src={channel.thumbnail_url}
+                    alt={channel.name ?? ''}
                     className="h-11 w-11 shrink-0 rounded-full object-cover"
                   />
                 ) : (
@@ -152,7 +152,7 @@ export default async function StreamPage({
 
                 <div className="min-w-0">
                   <div className="truncate text-sm font-medium text-gray-700">
-                    {stream.channel?.name ??
+                    {channel?.name ??
                       'チャンネル不明'}
                   </div>
 
