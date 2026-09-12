@@ -119,7 +119,7 @@ export default async function StreamPage({
         <section className="mb-8 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
           <div className="flex flex-col md:flex-row">
             {/* 配信サムネ */}
-            <div className="shrink-0 md:w-80">
+            <div className="shrink-0 md:w-64">
               {stream.video_thumbnail_url ? (
                 <a
                   href={originalYoutubeUrl}
@@ -129,7 +129,7 @@ export default async function StreamPage({
                   <img
                     src={stream.video_thumbnail_url}
                     alt={stream.title}
-                    className="aspect-video h-full w-full object-cover"
+                    className="aspect-video w-full object-cover"
                   />
                 </a>
               ) : (
