@@ -1,13 +1,58 @@
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
+
+import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
+type Channel = {
+  name: string | null
+  thumbnail_url: string | null
+}
+
+type Stream = {
+  id: number
+  youtube_video_id: string
+  title: string
+  duration_sec: number | null
+  published_at: string | null
+  video_thumbnail_url: string | null
+  channel: Channel | null
+}
+
+function formatPublishedDate(value: string | null) {
+  if (!value) {
+    return null
+  }
+
+  return new Date(value).toLocaleDateString('ja-JP', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
+}
+
 export default async function Home() {
-  const { data: streams, error } = await supabase
+  const { data, error } = await supabase
     .from('stream')
-    .select('*')
+    .select(`
+      id,
+      youtube_video_id,
+      title,
+      duration_sec,
+      published_at,
+      video_thumbnail_url,
+      channel (
+        name,
+        thumbnail_url
+      )
+    `)
     .order('published_at', {
       ascending: false,
       nullsFirst: false,
@@ -15,52 +60,98 @@ export default async function Home() {
 
   if (error) {
     return (
-      <main className="p-8">
-        <h1 className="text-2xl font-bold">stream取得エラー</h1>
-        <pre className="mt-4">{error.message}</pre>
+      <main className="mx-auto max-w-5xl p-6">
+        <h1 className="mb-6 text-3xl font-bold">
+          配信一覧
+        </h1>
+
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
+          配信一覧の取得に失敗しました。
+          <div className="mt-2 text-sm">
+            {error.message}
+          </div>
+        </div>
       </main>
     )
   }
 
-  return (
-    <main className="min-h-screen bg-gray-50 px-6 py-10">
-      <div className="mx-auto max-w-5xl">
-        <h1 className="mb-8 text-3xl font-bold">配信一覧</h1>
+  const streams = (data ?? []) as unknown as Stream[]
 
-        <div className="space-y-4">
-          {streams?.map((stream) => (
+  return (
+    <main className="mx-auto max-w-5xl p-6">
+      <h1 className="mb-6 text-3xl font-bold">
+        配信一覧
+      </h1>
+
+      <div className="space-y-4">
+        {streams.map((stream) => {
+          const publishedDate = formatPublishedDate(
+            stream.published_at
+          )
+
+          return (
             <Link
               key={stream.id}
               href={`/stream/${stream.youtube_video_id}`}
-              className="block rounded-xl border p-5 hover:bg-gray-50"
+              className="block overflow-hidden rounded-2xl border border-gray-300 bg-white transition hover:border-gray-400 hover:bg-gray-50"
             >
-              <h2 className="text-xl font-bold">
-                {stream.title}
-              </h2>
-
-              <div className="mt-2 text-sm text-gray-600">
-                <div>
-                  {stream.channel_name ?? 'チャンネル不明'}
+              <div className="flex flex-col sm:flex-row">
+                {/* 配信サムネイル */}
+                <div className="shrink-0 sm:w-64">
+                  {stream.video_thumbnail_url ? (
+                    <img
+                      src={stream.video_thumbnail_url}
+                      alt=""
+                      className="aspect-video h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="aspect-video w-full bg-gray-200" />
+                  )}
                 </div>
 
-                {stream.published_at && (
-                  <div className="mt-1 text-gray-500">
-                    公開日：
-                    {new Date(stream.published_at).toLocaleDateString(
-                      'ja-JP',
-                      {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                      }
+                {/* 配信情報 */}
+                <div className="min-w-0 flex-1 p-5">
+                  <h2 className="text-xl font-bold leading-snug text-gray-900">
+                    {stream.title}
+                  </h2>
+
+                  {/* チャンネル */}
+                  <div className="mt-4 flex items-center gap-3">
+                    {stream.channel?.thumbnail_url ? (
+                      <img
+                        src={stream.channel.thumbnail_url}
+                        alt=""
+                        className="h-10 w-10 shrink-0 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-10 w-10 shrink-0 rounded-full bg-gray-200" />
                     )}
+
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-medium text-gray-700">
+                        {stream.channel?.name ??
+                          'チャンネル不明'}
+                      </div>
+
+                      {publishedDate && (
+                        <div className="mt-0.5 text-sm text-gray-500">
+                          公開日：{publishedDate}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
             </Link>
-          ))}
-        </div>
+          )
+        })}
       </div>
+
+      {streams.length === 0 && (
+        <div className="rounded-xl border border-gray-300 p-6 text-gray-500">
+          配信がまだ登録されていません。
+        </div>
+      )}
     </main>
   )
 }
