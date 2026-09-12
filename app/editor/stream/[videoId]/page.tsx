@@ -3,9 +3,6 @@ import { supabase } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
-export const metadata = {
-  title: `${stream.title} | Editor | AIが選ぶおすすめシーン`
-}
 
 function formatTime(seconds: number) {
   const totalSeconds = Math.floor(seconds)
@@ -34,6 +31,26 @@ function formatPublishedDate(value: string | null) {
     month: '2-digit',
     day: '2-digit',
   })
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ videoId: string }>
+}) {
+  const { videoId } = await params
+
+  const { data: stream } = await supabase
+    .from('stream')
+    .select('title')
+    .eq('youtube_video_id', videoId)
+    .single()
+
+  return {
+    title: stream
+      ? `${stream.title} | AIが選ぶおすすめシーン`
+      : 'AIが選ぶおすすめシーン',
+  }
 }
 
 export default async function EditorStreamPage({
