@@ -94,6 +94,10 @@ export default async function StreamPage({
     stream.published_at
   )
 
+  const channel = Array.isArray(stream.channel)
+    ? stream.channel[0] ?? null
+    : stream.channel
+
   const originalYoutubeUrl =
     `https://youtu.be/${stream.youtube_video_id}`
 
