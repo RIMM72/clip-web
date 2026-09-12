@@ -4,6 +4,9 @@ import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
+export const metadata = {
+  title: '配信一覧 | AIが選ぶおすすめシーン',
+}
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -61,10 +64,19 @@ export default async function Home() {
   if (error) {
     return (
       <main className="mx-auto max-w-5xl p-6">
-        <h1 className="mb-6 text-3xl font-bold">
-          配信一覧
-        </h1>
+        <div className="mb-6">
+          <div className="text-3xl font-bold">
+            AIが選ぶおすすめシーン
+          </div>
 
+          <div className="mt-1 text-sm text-gray-500">
+            配信から見どころを自動でピックアップ
+          </div>
+
+          <h1 className="mt-6 text-2xl font-bold">
+            配信一覧
+          </h1>
+        </div>
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
           配信一覧の取得に失敗しました。
           <div className="mt-2 text-sm">
@@ -102,7 +114,7 @@ export default async function Home() {
                     <img
                       src={stream.video_thumbnail_url}
                       alt=""
-                      className="aspect-video h-full w-full object-cover"
+                      className="aspect-video w-full object-cover"
                     />
                   ) : (
                     <div className="aspect-video w-full bg-gray-200" />

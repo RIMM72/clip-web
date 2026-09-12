@@ -3,6 +3,9 @@ import { supabase } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
+export const metadata = {
+  title: `${stream.title} | Editor | AIが選ぶおすすめシーン`
+}
 
 function formatTime(seconds: number) {
   const totalSeconds = Math.floor(seconds)
