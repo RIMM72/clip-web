@@ -167,21 +167,6 @@ export default async function StreamPage({
                   )}
                 </div>
               </div>
-
-              <div className="mt-3">
-                <a
-                  href={originalYoutubeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-blue-600 hover:underline"
-                >
-                  YouTubeで元配信を見る
-                </a>
-              </div>
-
-              <p className="mt-1 text-xs text-gray-400">
-                YouTube ID: {stream.youtube_video_id}
-              </p>
             </div>
           </div>
         </section>
