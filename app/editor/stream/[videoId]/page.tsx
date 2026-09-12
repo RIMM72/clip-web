@@ -117,16 +117,16 @@ export default async function EditorStreamPage({
 
         {/* 配信情報 */}
         <section className="mb-8 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-          <div className="flex flex-col md:flex-row md:items-stretch">
+          <div className="flex flex-col md:min-h-44 md:flex-row">
 
             {/* 配信サムネ */}
-            <div className="shrink-0 md:w-64">
+            <div className="flex shrink-0 items-center md:w-64">
               {stream.video_thumbnail_url ? (
                 <a
                   href={originalYoutubeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block h-full"
+                  className="block w-full"
                 >
                   <img
                     src={stream.video_thumbnail_url}
@@ -167,15 +167,6 @@ export default async function EditorStreamPage({
                     </div>
                   )}
                 </div>
-              </div>
-
-              <div className="mt-3">
-                <Link
-                  href={`/stream/${stream.youtube_video_id}`}
-                  className="text-sm text-blue-600 hover:underline"
-                >
-                  公開ページを見る
-                </Link>
               </div>
             </div>
           </div>
