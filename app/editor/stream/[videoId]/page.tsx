@@ -117,7 +117,8 @@ export default async function EditorStreamPage({
 
         {/* 配信情報 */}
         <section className="mb-8 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-          <div className="flex flex-col md:flex-row">
+          <div className="flex flex-col md:flex-row md:items-stretch">
+
             {/* 配信サムネ */}
             <div className="shrink-0 md:w-64">
               {stream.video_thumbnail_url ? (
@@ -125,6 +126,7 @@ export default async function EditorStreamPage({
                   href={originalYoutubeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="block h-full"
                 >
                   <img
                     src={stream.video_thumbnail_url}
@@ -143,7 +145,7 @@ export default async function EditorStreamPage({
                 {stream.title}
               </h2>
 
-              <div className="mt-4 flex items-center gap-3">
+              <div className="mt-3 flex items-center gap-3">
                 {channel?.thumbnail_url ? (
                   <img
                     src={channel.thumbnail_url}
@@ -156,8 +158,7 @@ export default async function EditorStreamPage({
 
                 <div className="min-w-0">
                   <div className="truncate text-sm font-medium text-gray-700">
-                    {channel?.name ??
-                      'チャンネル不明'}
+                    {channel?.name ?? 'チャンネル不明'}
                   </div>
 
                   {publishedDate && (
@@ -168,16 +169,7 @@ export default async function EditorStreamPage({
                 </div>
               </div>
 
-              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
-                <a
-                  href={originalYoutubeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-blue-600 hover:underline"
-                >
-                  YouTubeで元配信を見る
-                </a>
-
+              <div className="mt-3">
                 <Link
                   href={`/stream/${stream.youtube_video_id}`}
                   className="text-sm text-blue-600 hover:underline"
@@ -185,10 +177,6 @@ export default async function EditorStreamPage({
                   公開ページを見る
                 </Link>
               </div>
-
-              <p className="mt-2 text-xs text-gray-400">
-                YouTube ID: {stream.youtube_video_id}
-              </p>
             </div>
           </div>
         </section>

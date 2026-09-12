@@ -117,7 +117,8 @@ export default async function StreamPage({
 
         {/* 配信情報 */}
         <section className="mb-8 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-          <div className="flex flex-col md:flex-row">
+          <div className="flex flex-col md:flex-row md:items-stretch">
+
             {/* 配信サムネ */}
             <div className="shrink-0 md:w-64">
               {stream.video_thumbnail_url ? (
@@ -125,6 +126,7 @@ export default async function StreamPage({
                   href={originalYoutubeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="block h-full"
                 >
                   <img
                     src={stream.video_thumbnail_url}
@@ -143,7 +145,7 @@ export default async function StreamPage({
                 {stream.title}
               </h2>
 
-              <div className="mt-4 flex items-center gap-3">
+              <div className="mt-3 flex items-center gap-3">
                 {channel?.thumbnail_url ? (
                   <img
                     src={channel.thumbnail_url}
@@ -156,8 +158,7 @@ export default async function StreamPage({
 
                 <div className="min-w-0">
                   <div className="truncate text-sm font-medium text-gray-700">
-                    {channel?.name ??
-                      'チャンネル不明'}
+                    {channel?.name ?? 'チャンネル不明'}
                   </div>
 
                   {publishedDate && (
