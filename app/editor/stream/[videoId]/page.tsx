@@ -20,6 +20,19 @@ function formatTime(seconds: number) {
   return `${m}:${s.toString().padStart(2, '0')}`
 }
 
+function formatPublishedDate(value: string | null) {
+  if (!value) {
+    return null
+  }
+
+  return new Date(value).toLocaleDateString('ja-JP', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
+}
+
 export default async function EditorStreamPage({
   params,
 }: {
@@ -29,15 +42,30 @@ export default async function EditorStreamPage({
 
   const { data: stream, error: streamError } = await supabase
     .from('stream')
-    .select('*')
+    .select(`
+      id,
+      youtube_video_id,
+      title,
+      published_at,
+      video_thumbnail_url,
+      channel (
+        name,
+        thumbnail_url
+      )
+    `)
     .eq('youtube_video_id', videoId)
     .single()
 
   if (streamError) {
     return (
       <main className="p-8">
-        <h1 className="text-2xl font-bold">stream取得エラー</h1>
-        <pre className="mt-4">{streamError.message}</pre>
+        <h1 className="text-2xl font-bold">
+          stream取得エラー
+        </h1>
+
+        <pre className="mt-4">
+          {streamError.message}
+        </pre>
       </main>
     )
   }
@@ -51,11 +79,23 @@ export default async function EditorStreamPage({
   if (highlightError) {
     return (
       <main className="p-8">
-        <h1 className="text-2xl font-bold">highlight取得エラー</h1>
-        <pre className="mt-4">{highlightError.message}</pre>
+        <h1 className="text-2xl font-bold">
+          highlight取得エラー
+        </h1>
+
+        <pre className="mt-4">
+          {highlightError.message}
+        </pre>
       </main>
     )
   }
+
+  const publishedDate = formatPublishedDate(
+    stream.published_at
+  )
+
+  const originalYoutubeUrl =
+    `https://youtu.be/${stream.youtube_video_id}`
 
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-10">
@@ -67,17 +107,89 @@ export default async function EditorStreamPage({
           ← 配信一覧へ
         </Link>
 
-        <h1 className="mb-2 text-3xl font-bold">
+        <h1 className="mb-6 text-3xl font-bold">
           切り抜き候補 / Editor
         </h1>
 
-        <div className="mb-8">
-          <p className="text-lg font-semibold">{stream.title}</p>
-          <p className="mt-1 text-sm text-gray-500">
-            YouTube ID: {stream.youtube_video_id}
-          </p>
-        </div>
+        {/* 配信情報 */}
+        <section className="mb-8 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+          <div className="flex flex-col md:flex-row">
+            {/* 配信サムネ */}
+            <div className="shrink-0 md:w-80">
+              {stream.video_thumbnail_url ? (
+                <a
+                  href={originalYoutubeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img
+                    src={stream.video_thumbnail_url}
+                    alt={stream.title}
+                    className="aspect-video h-full w-full object-cover"
+                  />
+                </a>
+              ) : (
+                <div className="aspect-video w-full bg-gray-200" />
+              )}
+            </div>
 
+            {/* 配信詳細 */}
+            <div className="flex min-w-0 flex-1 flex-col justify-center p-5">
+              <h2 className="text-xl font-bold leading-snug">
+                {stream.title}
+              </h2>
+
+              <div className="mt-4 flex items-center gap-3">
+                {stream.channel?.thumbnail_url ? (
+                  <img
+                    src={stream.channel.thumbnail_url}
+                    alt={stream.channel.name ?? ''}
+                    className="h-11 w-11 shrink-0 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="h-11 w-11 shrink-0 rounded-full bg-gray-200" />
+                )}
+
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-medium text-gray-700">
+                    {stream.channel?.name ??
+                      'チャンネル不明'}
+                  </div>
+
+                  {publishedDate && (
+                    <div className="mt-0.5 text-sm text-gray-500">
+                      公開日：{publishedDate}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+                <a
+                  href={originalYoutubeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  YouTubeで元配信を見る
+                </a>
+
+                <Link
+                  href={`/stream/${stream.youtube_video_id}`}
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  公開ページを見る
+                </Link>
+              </div>
+
+              <p className="mt-2 text-xs text-gray-400">
+                YouTube ID: {stream.youtube_video_id}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* 切り抜き候補 */}
         <div className="space-y-6">
           {highlights?.map((highlight, index) => {
             const youtubeUrl =
@@ -114,10 +226,11 @@ export default async function EditorStreamPage({
                     </a>
                   </div>
 
-                  <div className="rounded-lg bg-gray-900 px-4 py-3 text-center text-white">
+                  <div className="shrink-0 rounded-lg bg-gray-900 px-4 py-3 text-center text-white">
                     <div className="text-xs uppercase tracking-wide">
                       Total
                     </div>
+
                     <div className="text-2xl font-bold">
                       {highlight.total_score}
                     </div>
@@ -129,10 +242,12 @@ export default async function EditorStreamPage({
                     label="Semantic"
                     score={highlight.semantic_score}
                   />
+
                   <ScoreBox
                     label="Chat"
                     score={highlight.chat_score}
                   />
+
                   <ScoreBox
                     label="Audio"
                     score={highlight.audio_score}
@@ -141,49 +256,70 @@ export default async function EditorStreamPage({
 
                 <div className="space-y-4 text-sm leading-6">
                   <section>
-                    <h3 className="font-bold">内容</h3>
+                    <h3 className="font-bold">
+                      内容
+                    </h3>
+
                     <p className="mt-1 text-gray-700">
                       {highlight.summary}
                     </p>
                   </section>
 
                   <section>
-                    <h3 className="font-bold">見どころ</h3>
+                    <h3 className="font-bold">
+                      見どころ
+                    </h3>
+
                     <p className="mt-1 text-gray-700">
                       {highlight.appeal}
                     </p>
                   </section>
 
                   <section>
-                    <h3 className="font-bold">寸評</h3>
+                    <h3 className="font-bold">
+                      寸評
+                    </h3>
+
                     <p className="mt-1 text-gray-700">
                       {highlight.commentary}
                     </p>
                   </section>
 
                   <section>
-                    <h3 className="font-bold">編集ポイント</h3>
+                    <h3 className="font-bold">
+                      編集ポイント
+                    </h3>
+
                     <p className="mt-1 text-gray-700">
                       {highlight.editing_point}
                     </p>
                   </section>
 
                   <section>
-                    <h3 className="font-bold">注意点</h3>
+                    <h3 className="font-bold">
+                      注意点
+                    </h3>
+
                     <p className="mt-1 text-gray-700">
                       {highlight.caution || 'なし'}
                     </p>
                   </section>
 
                   <section>
-                    <h3 className="font-bold">Candidate ID</h3>
+                    <h3 className="font-bold">
+                      Candidate ID
+                    </h3>
+
                     <p className="mt-1 font-mono text-gray-700">
                       {highlight.candidate_id}
                     </p>
                   </section>
 
                   <section>
-                    <h3 className="font-bold">Selection Reasons</h3>
+                    <h3 className="font-bold">
+                      Selection Reasons
+                    </h3>
+
                     <div className="mt-2 flex flex-wrap gap-2">
                       {highlight.selection_reasons?.map(
                         (reason: string) => (
@@ -199,7 +335,9 @@ export default async function EditorStreamPage({
                   </section>
 
                   <section>
-                    <h3 className="font-bold">Source Evidence</h3>
+                    <h3 className="font-bold">
+                      Source Evidence
+                    </h3>
 
                     <div className="mt-2 flex flex-wrap gap-2">
                       <Evidence
@@ -208,13 +346,19 @@ export default async function EditorStreamPage({
                           highlight.source_evidence?.transcript
                         }
                       />
+
                       <Evidence
                         label="Chat"
-                        enabled={highlight.source_evidence?.chat}
+                        enabled={
+                          highlight.source_evidence?.chat
+                        }
                       />
+
                       <Evidence
                         label="Audio"
-                        enabled={highlight.source_evidence?.audio}
+                        enabled={
+                          highlight.source_evidence?.audio
+                        }
                       />
                     </div>
                   </section>
@@ -240,7 +384,10 @@ function ScoreBox({
       <div className="text-xs font-semibold uppercase text-gray-500">
         {label}
       </div>
-      <div className="mt-1 text-xl font-bold">{score}</div>
+
+      <div className="mt-1 text-xl font-bold">
+        {score}
+      </div>
     </div>
   )
 }
