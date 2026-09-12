@@ -32,13 +32,31 @@ export default async function Home() {
             <Link
               key={stream.id}
               href={`/stream/${stream.youtube_video_id}`}
-              className="block rounded-xl border border-gray-200 bg-white p-6 shadow-sm hover:bg-gray-50"
+              className="block rounded-xl border p-5 hover:bg-gray-50"
             >
-              <h2 className="text-xl font-bold">{stream.title}</h2>
+              <h2 className="text-xl font-bold">
+                {stream.title}
+              </h2>
 
-              <p className="mt-2 text-sm text-gray-500">
-                YouTube ID: {stream.youtube_video_id}
-              </p>
+              <div className="mt-2 text-sm text-gray-600">
+                <div>
+                  {stream.channel_name ?? 'チャンネル不明'}
+                </div>
+
+                {stream.published_at && (
+                  <div className="mt-1 text-gray-500">
+                    公開日：
+                    {new Date(stream.published_at).toLocaleDateString(
+                      'ja-JP',
+                      {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                      }
+                    )}
+                  </div>
+                )}
+              </div>
             </Link>
           ))}
         </div>
